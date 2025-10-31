@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="name">Умная книжная полка</string>
+    <string name="search">Поиск</string>
+    <string name="AppTitle">Умная книжная полка</string>
+    <string name="LogInAccount">Войдите в свой аккаунт</string>
+    <string name="Register">Регистрация</string>
+    <string name="Email">Email</string>
+    <string name="Password">Пароль</string>
+    <string name="ConfirmPassword">Подтверждение пароля</string>
+    <string name="NoAccountRegister">Нет аккаунта? Зарегистрироваться</string>
+    <string name="ThereAccountLogIn">Уже есть аккаунт? Войти</string>
+    <string name="NewRegister">Зарегистрироваться</string>
+    <string name="login">Войти</string>
+</resources>
