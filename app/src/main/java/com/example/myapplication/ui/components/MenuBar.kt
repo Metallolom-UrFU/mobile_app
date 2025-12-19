@@ -1,10 +1,11 @@
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import com.example.myapplication.container.presentation.AppTabs
 
 @Composable
@@ -18,10 +19,11 @@ fun MenuBar(
                 onClick = { onTabClick(pos) },
                 modifier = Modifier.weight(1f),
             ) {
-                Icon(
-                    painter = rememberVectorPainter(tab.icon),
+                Image(
+                    painter = painterResource(tab.iconRes),
                     contentDescription = null,
-                    tint = if (pos == selectedTab) Color.Black else Color.Gray
+                    modifier = Modifier
+                        .size(64.dp)
                 )
             }
         }

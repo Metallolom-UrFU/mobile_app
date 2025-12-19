@@ -12,4 +12,5 @@
     <string name="ThereAccountLogIn">Уже есть аккаунт? Войти</string>
     <string name="NewRegister">Зарегистрироваться</string>
     <string name="login">Войти</string>
+    <string name="not_found">Не найдено</string>
 </resources>

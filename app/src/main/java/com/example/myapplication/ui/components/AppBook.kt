@@ -1,125 +1,159 @@
 package com.example.myapplication.ui.components
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-
-
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import coil.compose.AsyncImage
 import com.example.myapplication.R
+import com.example.myapplication.bookList.domain.entity.BookShortEntity
+import com.example.myapplication.profile.presentation.state.ReservationUiStatus
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun BookItemCard(
-    item: BookItemUi,
-    modifier: Modifier = Modifier,
-    onClickOrder: () -> Unit = {},
-    canOrder: Boolean
+    item: BookShortEntity,
+    onClickOpenBook: () -> Unit = {},
+    onClickReserve: () -> Unit = {},
+    onClickCancel: () -> Unit = {},
+    onClickPickup: () -> Unit = {},
+    canOpenDetails: Boolean,
+    reservationStatus: ReservationUiStatus = ReservationUiStatus.NONE,
+    reservedUntil: String? = null
 ) {
-    Row(
-        modifier = modifier
+    Surface(
+        modifier = Modifier
             .fillMaxWidth()
-            .height(155.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(10.dp, 17.dp),
-        verticalAlignment = Alignment.Top
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .then(
+                if (canOpenDetails) Modifier.clickable { onClickOpenBook() } else Modifier
+            ),
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        tonalElevation = 1.dp
     ) {
-        Image(
-            painter = painterResource(id = item.imageRes),
-            contentDescription = null,
-            modifier = Modifier
-                .size(width = 121.dp, height = 121.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(Color.LightGray),
-            contentScale = ContentScale.Crop
-        )
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = item.title,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(modifier = Modifier.height(13.dp))
-            Text(
-                text = item.author,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+        Row(
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            AsyncImage(
+                model = item.imageRes,
+                contentDescription = item.title,
+                modifier = Modifier
+                    .size(width = 96.dp, height = 128.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(R.drawable.ic_launcher_foreground),
+                error = painterResource(R.drawable.ic_launcher_foreground)
             )
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.width(14.dp))
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.Top,
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                item.tags.forEach { tag ->
-                    Surface(
-                        modifier = Modifier
-                            .height(20.dp),
-                        color = Color(0xFFD9D9D9),
-                        shape = RoundedCornerShape(40)
-                    ) {
-                        Box(
-                            modifier = Modifier.padding(horizontal = 10.dp),
-                            contentAlignment = Alignment.Center
-
-                        ) {
-                            Text(
-                                text = tag,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color(0xAA000000)
-                            )
-
+                Column {
+                    Text(
+                        text = item.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = item.author,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    if (item.showTags && item.tags.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            item.tags.take(3).forEach {
+                                TagChip(it)
+                            }
                         }
                     }
                 }
-            }
-            if (canOrder) {
-                Spacer(Modifier.height(11.dp))
-                Surface(
-                    modifier = Modifier
-                        .height(20.dp),
-                    color = Color(0xFFD9D9D9),
-                    shape = RoundedCornerShape(40)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .padding(horizontal = 10.dp)
-                            .clickable {onClickOrder()},
-                        contentAlignment = Alignment.Center
 
-                    ) {
+                Spacer(modifier = Modifier.height(12.dp))
+
+                when (reservationStatus) {
+                    ReservationUiStatus.PENDING -> {
+                        reservedUntil?.let {
+                            Text(
+                                text = "Зарезервировано до ${it.toDisplayDate()}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(6.dp))
+                        }
+                        Button(
+                            onClick = onClickPickup,
+                            modifier = Modifier.fillMaxWidth().height(30.dp),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text("Показать QR код", style = MaterialTheme.typography.bodySmall)
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Button(
+                            onClick = onClickCancel,
+                            modifier = Modifier.fillMaxWidth().height(30.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text(
+                                "Отменить бронь",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onError
+                            )
+                        }
+                    }
+
+                    ReservationUiStatus.CONFIRMED -> {
+                        reservedUntil?.let {
+                            Text(
+                                text = "Книга взята до ${it.toDisplayDate()}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    ReservationUiStatus.CANCELLED -> {
                         Text(
-                            text = "Заказать здесь",
+                            text = "Бронь отменена",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color.Black
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                    }
 
+                    ReservationUiStatus.COMPLETED -> {
+                        Text(
+                            text = "Книга возвращена",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    ReservationUiStatus.AVAILABLE -> {
+                        Button(
+                            onClick = onClickReserve,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text("Зарезервировать")
+                        }
+                    }
+
+                    ReservationUiStatus.NONE -> {
                     }
                 }
             }
@@ -127,22 +161,12 @@ fun BookItemCard(
     }
 }
 
-data class BookItemUi(
-    val title: String,
-    val author: String,
-    val tags: List<String>,
-    val imageRes: Int
-)
-
-@Preview(showBackground = true)
-@Composable
-fun BookItemCardPreview() {
-    val sample = BookItemUi(
-        title = "Название книги",
-        author = "Автор",
-        tags = listOf("Тег", "Тег"),
-        imageRes = R.drawable.ic_launcher_foreground,
-    )
-
-    BookItemCard(item = sample, canOrder = true)
+fun String.toDisplayDate(): String {
+    return try {
+        val inputFormatter = DateTimeFormatter.ISO_DATE_TIME
+        val outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yy")
+        LocalDate.parse(this, inputFormatter).format(outputFormatter)
+    } catch (e: Exception) {
+        this
+    }
 }

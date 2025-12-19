@@ -12,6 +12,13 @@ android {
     namespace = "com.example.myapplication"
     compileSdk = 36
 
+    packaging {
+        resources {
+            excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
+        }
+    }
+
+
     defaultConfig {
         applicationId = "com.example.myapplication"
         minSdk = 31
@@ -66,11 +73,22 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
 
     implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.datastore.core)
+    implementation(libs.androidx.compose.foundation)
     ksp(libs.androidx.room.room.compiler)
     implementation(libs.androidx.room.ktx)
 
     implementation(libs.koin.androidx.compose)
     implementation(libs.modo.compose)
+
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
+    implementation(libs.coil.compose)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.maps.mobile)
 
     implementation(libs.androidx.material.icons.extended)
 
